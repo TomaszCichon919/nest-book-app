@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Book } from '@prisma/client';
 
@@ -62,5 +66,30 @@ export class BooksService {
         },
       },
     });
+  }
+
+  async likeBook(bookId: string, userId: string): Promise<any> {
+    try {
+      const likedBook = await this.prismaService.book.update({
+        where: { id: bookId },
+        data: {
+          users: {
+            create: {
+              user: {
+                connect: { id: userId },
+              },
+            },
+          },
+        },
+      });
+
+      if (!likedBook) {
+        throw new NotFoundException('Book not found');
+      }
+
+      return likedBook;
+    } catch (error) {
+      throw new Error(`Error liking the book: ${error.message}`);
+    }
   }
 }

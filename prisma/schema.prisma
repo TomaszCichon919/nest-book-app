@@ -34,6 +34,8 @@ model Book {
   authorId String
   author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
+   users UserOnBooks[]
+
 }
 
 model User {
@@ -41,6 +43,8 @@ model User {
   email    String    @unique
   role     Role      @default(USER)
   password Password?
+
+  books UserOnBooks[]
 }
 
 model Password {
@@ -48,4 +52,13 @@ model Password {
   hashedPassword String
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String @unique
+}
+
+model UserOnBooks {
+  book   Book @relation(fields: [bookId], references: [id])
+  bookId String // relation scalar field (used in the `@relation` attribute above)
+  user   User @relation(fields: [userId], references: [id])
+  userId String // relation scalar field (used in the `@relation` attribute above)
+
+  @@id([bookId, userId])
 }

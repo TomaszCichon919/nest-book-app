@@ -3,14 +3,27 @@ import { UsersService } from './users.service';
 import { ParseUUIDPipe, NotFoundException } from '@nestjs/common';
 import { AdminAuthGuard } from '../auth/admin-auth.guard';
 import { JwtAuthGuard } from '../auth/jws-auth.guard';
+import { User } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private prismaService: PrismaService,
+  ) {}
 
   @Get('/')
-  getAll(): any {
-    return this.usersService.getAll();
+  public async getAll(): Promise<User[]> {
+    return this.prismaService.user.findMany({
+      include: {
+        books: {
+          include: {
+            book: true,
+          },
+        },
+      },
+    });
   }
 
   @Get('/:id')

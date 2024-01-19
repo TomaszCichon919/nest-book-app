@@ -13,6 +13,7 @@ import { ParseUUIDPipe, NotFoundException } from '@nestjs/common';
 import { CreateBookDTO } from './dtos/create-book.dto';
 import { UpdateBookDTO } from './dtos/update-book.dto';
 import { JwtAuthGuard } from '../auth/jws-auth.guard';
+import { LikeBookDTO } from './dtos/like-book.dto';
 
 @Controller('books')
 export class BooksController {
@@ -54,5 +55,16 @@ export class BooksController {
 
     await this.booksService.updateById(id, booksData);
     return { success: true };
+  }
+
+  @Post('/like')
+  @UseGuards(JwtAuthGuard)
+  async likeBook(@Body() likeData: LikeBookDTO): Promise<any> {
+    try {
+      await this.booksService.likeBook(likeData.bookId, likeData.userId);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 }
